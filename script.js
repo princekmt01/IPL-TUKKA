@@ -178,3 +178,15 @@ localStorage.clear()
 location.reload()
 
 }
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAiOajrHuRQXACCyf-s589zZaSXiU6ADTM",
+  authDomain: "ipl-tukka.firebaseapp.com",
+  projectId: "ipl-tukka",
+  storageBucket: "ipl-tukka.firebasestorage.app",
+  messagingSenderId: "778431624905",
+  appId: "1:778431624905:web:30b8932cd4ae4518a77f18",
+  measurementId: "G-6E2FS0BNZZ"
+};
