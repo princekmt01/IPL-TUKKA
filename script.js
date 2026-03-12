@@ -1,21 +1,4 @@
 // ==========================
-// Firebase Configuration
-// ==========================
-const firebaseConfig = {
-    apiKey: "AIzaSyCSxv0be8qF1KaG4c7Fz9zyPKSmQaK3t04",
-    authDomain: "ipl-tukka-2.firebaseapp.com",
-    databaseURL: "https://ipl-tukka-2-default-rtdb.firebaseio.com",
-    projectId: "ipl-tukka-2",
-    storageBucket: "ipl-tukka-2.appspot.com",
-    messagingSenderId: "157643345361",
-    appId: "1:157643345361:web:fab5c045a29aa16fb3a4f0"
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// ==========================
 // DOM References
 // ==========================
 const matchSelect = document.getElementById("matchSelect");
@@ -28,10 +11,11 @@ const adminPanel = document.getElementById("adminPanel");
 const adminPassword = document.getElementById("adminPassword");
 
 // ==========================
-// Fill number dropdown 1-400
+// Fill numbers dropdown 1-400
 // ==========================
-for(let i=1;i<=400;i++){
+for (let i = 1; i <= 400; i++) {
     let opt = document.createElement("option");
+    opt.value = i;
     opt.text = i;
     numberSelect.add(opt);
 }
@@ -39,17 +23,17 @@ for(let i=1;i<=400;i++){
 // ==========================
 // Page Navigation
 // ==========================
-function showPage(id){
-    document.querySelectorAll(".page").forEach(p=>p.style.display="none");
-    document.getElementById(id).style.display="block";
+function showPage(id) {
+    document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+    document.getElementById(id).style.display = "block";
 }
 showPage("matches");
 
 // ==========================
 // Admin Login
 // ==========================
-function adminLogin(){
-    if(adminPassword.value === "prince@ipltukka"){
+function adminLogin() {
+    if (adminPassword.value === "prince@ipltukka") {
         adminPanel.style.display = "block";
     } else alert("Incorrect Password!");
 }
@@ -57,12 +41,11 @@ function adminLogin(){
 // ==========================
 // Players Functions
 // ==========================
-function updatePlayers(){
+function updatePlayers() {
     playerSelect.innerHTML = "";
-    db.ref("players").on("value", snapshot => {
-        const players = snapshot.val() || {};
-        for(let p in players){
-            let o = document.createElement("option");
+    listenData("players", players => {
+        for (let p in players) {
+            const o = document.createElement("option");
             o.value = p;
             o.text = p;
             playerSelect.add(o);
@@ -70,48 +53,48 @@ function updatePlayers(){
     });
 }
 
-function addPlayer(){
+function addPlayer() {
     const name = document.getElementById("newPlayer").value.trim();
-    if(!name) return;
-    db.ref("players/" + name).set(true);
+    if (!name) return;
+    saveData(`players/${name}`, true);
     document.getElementById("newPlayer").value = "";
 }
 
-function deletePlayer(){
+function deletePlayer() {
     const name = document.getElementById("deletePlayerName").value.trim();
-    if(!name) return;
-    db.ref("players/" + name).remove();
+    if (!name) return;
+    removeData(`players/${name}`);
     document.getElementById("deletePlayerName").value = "";
 }
 
 updatePlayers();
+
 // ==========================
 // Matches Functions
 // ==========================
-function updateMatches(){
+function updateMatches() {
     matchSelect.innerHTML = "";
-    db.ref("matches").on("value", snapshot => {
-        const matches = snapshot.val() || {};
-        for(let key in matches){
+    listenData("matches", matches => {
+        for (let key in matches) {
             const m = matches[key];
             const o = document.createElement("option");
             o.value = key;
-            o.text = `Match ${key} ${m.t1} vs ${m.t2}`;
+            o.text = `Match ${key}: ${m.t1} vs ${m.t2}`;
             matchSelect.add(o);
         }
-        showTukkas(); // refresh predictions when matches update
+        showTukkas();
     });
 }
 
-function addMatch(){
+function addMatch() {
     const num = document.getElementById("matchNumber").value.trim();
     const t1 = document.getElementById("team1").value.trim();
     const t2 = document.getElementById("team2").value.trim();
     const deadline = document.getElementById("deadline").value;
 
-    if(!num || !t1 || !t2) return;
+    if (!num || !t1 || !t2) return;
 
-    db.ref("matches/" + num).set({ t1, t2, deadline });
+    saveData(`matches/${num}`, { t1, t2, deadline });
 
     document.getElementById("matchNumber").value = "";
     document.getElementById("team1").value = "";
@@ -119,79 +102,99 @@ function addMatch(){
     document.getElementById("deadline").value = "";
 }
 
-function deleteMatch(){
+function deleteMatch() {
     const num = document.getElementById("deleteMatchNumber").value.trim();
-    if(!num) return;
-    db.ref("matches/" + num).remove();
+    if (!num) return;
+    removeData(`matches/${num}`);
     document.getElementById("deleteMatchNumber").value = "";
 }
 
 updateMatches();
 
 // ==========================
+// Team Dropdown Options
+// ==========================
+function updateTeamPredictionOptions() {
+    const matchId = matchSelect.value;
+    const match = document.getElementById("matchSelect");
+    const selected = match.options[match.selectedIndex];
+    if (!matchId || !selected) return;
+
+    const text = selected.text;
+    const teams = text.split(": ")[1]?.split(" vs ");
+    teamPrediction.innerHTML = "";
+    if (!teams) return;
+
+    teams.forEach(team => {
+        const o = document.createElement("option");
+        o.value = team;
+        o.text = team;
+        teamPrediction.add(o);
+    });
+}
+
+// Update team options whenever match changes
+matchSelect.addEventListener("change", () => {
+    showTukkas();
+    updateTeamPredictionOptions();
+});
+
+// ==========================
 // Predictions Functions
 // ==========================
-function submitPrediction(){
+function submitPrediction() {
     const player = playerSelect.value;
     const matchId = matchSelect.value;
     const team = teamPrediction.value;
     const num = parseInt(numberSelect.value);
 
-    if(!player || !team || !num || !matchId) return;
+    if (!player || !team || !num || !matchId) return;
 
-    const tukka = [num, num+1, num+2, num+3, num+4, num+5];
-    db.ref(`predictions/${matchId}/${player}`).set({ team, tukka });
+    const tukka = [num, num + 1, num + 2, num + 3, num + 4, num + 5];
+    saveData(`predictions/${matchId}/${player}`, { team, tukka });
     showTukkas();
 }
 
-// Show predictions real-time
-function showTukkas(){
+// Show predictions live
+function showTukkas() {
     const matchId = matchSelect.value;
-    if(!matchId) return;
+    if (!matchId) return;
 
     tukkaDisplay.innerHTML = "";
-
-    db.ref(`predictions/${matchId}`).on("value", snapshot => {
-        const data = snapshot.val() || {};
+    listenData(`predictions/${matchId}`, data => {
         tukkaDisplay.innerHTML = "";
-        for(let player in data){
+        for (let player in data) {
             const p = data[player];
             const line = document.createElement("p");
-            line.innerHTML = `${p.team} - ${player}'s tukka - ${p.tukka.join(",")}`;
+            line.innerHTML = `${p.team} - ${player}'s tukka: ${p.tukka.join(",")}`;
             tukkaDisplay.append(line);
         }
     });
 }
 
 // ==========================
-// Event Listener
-// ==========================
-matchSelect.addEventListener("change", showTukkas);
-// ==========================
 // Leaderboard Functions
 // ==========================
-function updateLeaderboard(){
+function updateLeaderboard() {
     pointsTable.innerHTML = "";
 
-    db.ref("seasonPoints").on("value", snapshot => {
-        const points = snapshot.val() || {};
+    listenData("seasonPoints", points => {
         const arr = [];
-
-        for(let player in points){
+        for (let player in points) {
             const p = points[player];
             arr.push({
                 name: player,
-                total: (p.teamPoints||0) + (p.scorePoints||0),
-                teamPoints: p.teamPoints||0,
-                scorePoints: p.scorePoints||0
+                teamPoints: p.teamPoints || 0,
+                scorePoints: p.scorePoints || 0,
+                total: (p.teamPoints || 0) + (p.scorePoints || 0)
             });
         }
 
-        arr.sort((a,b)=>b.total - a.total);
+        arr.sort((a, b) => b.total - a.total);
 
-        arr.forEach((p,i)=>{
+        arr.forEach((p, i) => {
             const tr = document.createElement("tr");
-            tr.innerHTML = `<td>${i+1}</td>
+            tr.innerHTML = `<td>${i + 1}</td>
                             <td>${p.name}</td>
                             <td>${p.teamPoints}</td>
                             <td>${p.scorePoints}</td>
@@ -206,25 +209,24 @@ updateLeaderboard();
 // ==========================
 // Admin: Enter Result
 // ==========================
-function enterResult(){
+function enterResult() {
     const winning = document.getElementById("winningTeam").value.trim();
     const score = parseInt(document.getElementById("winningScore").value);
     const matchId = matchSelect.value;
 
-    if(!winning || isNaN(score) || !matchId) return alert("Enter valid data");
+    if (!winning || isNaN(score) || !matchId) return alert("Enter valid data");
 
-    db.ref(`predictions/${matchId}`).once("value", snapshot => {
-        const data = snapshot.val() || {};
-        for(let player in data){
+    loadData(`predictions/${matchId}`, data => {
+        for (let player in data) {
             const p = data[player];
             const teamPoints = p.team === winning ? 10 : 0;
             const scorePoints = p.tukka.includes(score) ? 10 : 0;
 
-            db.ref(`seasonPoints/${player}`).once("value", snap => {
-                const existing = snap.val() || {};
-                db.ref(`seasonPoints/${player}`).set({
-                    teamPoints: (existing.teamPoints||0) + teamPoints,
-                    scorePoints: (existing.scorePoints||0) + scorePoints
+            // Update seasonPoints atomically
+            loadData(`seasonPoints/${player}`, existing => {
+                saveData(`seasonPoints/${player}`, {
+                    teamPoints: (existing.teamPoints || 0) + teamPoints,
+                    scorePoints: (existing.scorePoints || 0) + scorePoints
                 });
             });
         }
@@ -237,17 +239,9 @@ function enterResult(){
 // ==========================
 // Clear All Data
 // ==========================
-function clearData(){
-    if(confirm("This will delete all data! Are you sure?")){
-        db.ref().remove();
+function clearData() {
+    if (confirm("This will delete all data! Are you sure?")) {
+        removeData("");
         location.reload();
     }
 }
-
-// ==========================
-// Firebase Utilities (Optional)
-// ==========================
-function saveData(path, data){ db.ref(path).set(data); }
-function loadData(path, callback){ db.ref(path).once("value", snap=>callback(snap.val()||{})); }
-function listenData(path, callback){ db.ref(path).on("value", snap=>callback(snap.val()||{})); }
-function removeData(path){ db.ref(path).remove(); }
