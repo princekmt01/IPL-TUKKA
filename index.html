@@ -1,5 +1,6 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
@@ -9,176 +10,109 @@
   <!-- Your CSS -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- Firebase App (core SDK) -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-
-  <!-- Firebase Realtime Database -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
-  <!-- Initialize Firebase -->
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCSxv0be8qF1KaG4c7Fz9zyPKSmQaK3t04",
-      authDomain: "ipl-tukka-2.firebaseapp.com",
-      databaseURL: "https://ipl-tukka-2-default-rtdb.firebaseio.com",
-      projectId: "ipl-tukka-2",
-      storageBucket: "ipl-tukka-2.appspot.com",
-      messagingSenderId: "157643345361",
-      appId: "1:157643345361:web:fab5c045a29aa16fb3a4f0"
-    };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-  </script>
 </head>
+
 <body>
 
-<header>
-
-<h1>IPL TUKKA</h1>
-
-<div class="author">- PRINCE KUMAWAT</div>
-
-<div class="cricketAnim">
-
-<span class="bat">🏏</span>
-
-<span class="ball">🔴</span>
-
-</div>
-
-</header>
-
-<nav>
-
-<button onclick="showPage('matches')">Matches</button>
-
-<button onclick="showPage('leaderboard')">Leaderboard</button>
-
-<button onclick="showPage('profiles')">Profiles</button>
-
-<button onclick="showPage('admin')">Developer</button>
-
-</nav>
-
-<main>
-
-<section id="matches" class="page">
-
-<h2>Select Match</h2>
-
-<select id="matchSelect"></select>
-
-<h3 id="matchTeams"></h3>
-
-<h3>Select Name</h3>
-
-<select id="playerSelect"></select>
-
-<h3>Predict Team</h3>
-
-<select id="teamPrediction"></select>
-
-<h3>Starting Number</h3>
-
-<select id="numberSelect"></select>
-
-<button onclick="submitPrediction()">Submit</button>
-
-<h3>All Tukkas</h3>
-
-<div id="tukkaDisplay"></div>
-
-</section>
-
-<section id="leaderboard" class="page">
-
-<h2>Points Table</h2>
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Rank</th>
-<th>Name</th>
-<th>Team Points</th>
-<th>Score Points</th>
-<th>Total</th>
-
-</tr>
-
-</thead>
-
-<tbody id="pointsTable"></tbody>
-
-</table>
-
-</section>
-
-<section id="profiles" class="page">
-
-<h2>Player Profile</h2>
-
-<div id="profileArea"></div>
-
-</section>
-
-<section id="admin" class="page">
-
-<h2>Developer Panel</h2>
-
-<input type="password" id="adminPassword" placeholder="Password">
-
-<button onclick="adminLogin()">Login</button>
-
-<div id="adminPanel">
-
-<h3>Add Match</h3>
-
-<input id="matchNumber" placeholder="Match Number">
-<input id="team1" placeholder="Team 1">
-<input id="team2" placeholder="Team 2">
-<input type="datetime-local" id="deadline">
-
-<button onclick="addMatch()">Add Match</button>
-
-<h3>Delete Match</h3>
-
-<input id="deleteMatchNumber">
-<button onclick="deleteMatch()">Delete Match</button>
-
-<h3>Add Player</h3>
-
-<input id="newPlayer">
-<button onclick="addPlayer()">Add Player</button>
-
-<h3>Delete Player</h3>
-
-<input id="deletePlayerName">
-<button onclick="deletePlayer()">Delete Player</button>
-
-<h3>Enter Result</h3>
-
-<input id="winningTeam">
-<input id="winningScore">
-
-<button onclick="enterResult()">Submit Result</button>
-
-<button onclick="clearData()">Clear All Data</button>
-
-</div>
-
-</section>
-
-</main>
-
-<script src="storage.js"></script>
-
-<script src="script.js"></script>
+  <header>
+    <h1>IPL TUKKA</h1>
+    <div class="author">- PRINCE KUMAWAT</div>
+    <div class="cricketAnim">
+      <span class="bat">🏏</span>
+      <span class="ball">🔴</span>
+    </div>
+  </header>
+
+  <nav>
+    <button onclick="showPage('matches')">Matches</button>
+    <button onclick="showPage('leaderboard')">Leaderboard</button>
+    <button onclick="showPage('profiles')">Profiles</button>
+    <button onclick="showPage('admin')">Developer</button>
+  </nav>
+
+  <main>
+    <section id="matches" class="page">
+      <h2>Select Match</h2>
+      <select id="matchSelect"></select>
+      <h3 id="matchTeams"></h3>
+
+      <h3>Select Name</h3>
+      <select id="playerSelect"></select>
+
+      <h3>Predict Team</h3>
+      <select id="teamPrediction"></select>
+
+      <h3>Starting Number</h3>
+      <select id="numberSelect"></select>
+
+      <button onclick="submitPrediction()">Submit</button>
+
+      <h3>All Tukkas</h3>
+      <div id="tukkaDisplay"></div>
+    </section>
+
+    <section id="leaderboard" class="page">
+      <h2>Points Table</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Name</th>
+            <th>Team Points</th>
+            <th>Score Points</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="pointsTable"></tbody>
+      </table>
+    </section>
+
+    <section id="profiles" class="page">
+      <h2>Player Profile</h2>
+      <div id="profileArea"></div>
+    </section>
+
+    <section id="admin" class="page">
+      <h2>Developer Panel</h2>
+      <input type="password" id="adminPassword" placeholder="Password">
+      <button onclick="adminLogin()">Login</button>
+
+      <div id="adminPanel" style="display:none">
+        <h3>Add Match</h3>
+        <input id="matchNumber" placeholder="Match Number">
+        <input id="team1" placeholder="Team 1">
+        <input id="team2" placeholder="Team 2">
+        <input type="datetime-local" id="deadline">
+        <button onclick="addMatch()">Add Match</button>
+
+        <h3>Delete Match</h3>
+        <input id="deleteMatchNumber">
+        <button onclick="deleteMatch()">Delete Match</button>
+
+        <h3>Add Player</h3>
+        <input id="newPlayer">
+        <button onclick="addPlayer()">Add Player</button>
+
+        <h3>Delete Player</h3>
+        <input id="deletePlayerName">
+        <button onclick="deletePlayer()">Delete Player</button>
+
+        <h3>Enter Result</h3>
+        <input id="winningTeam" placeholder="Winning Team">
+        <input id="winningScore" placeholder="Score">
+        <button onclick="enterResult()">Submit Result</button>
+
+        <button onclick="clearData()">Clear All Data</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+  <script src="storage.js"></script>
 
 </body>
-
 </html>
