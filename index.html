@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,10 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IPL TUKKA</title>
 
-  <!-- Your CSS -->
+  <!-- CSS -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
@@ -34,6 +33,7 @@
   </nav>
 
   <main>
+    <!-- Matches Page -->
     <section id="matches" class="page">
       <h2>Select Match</h2>
       <select id="matchSelect"></select>
@@ -54,6 +54,7 @@
       <div id="tukkaDisplay"></div>
     </section>
 
+    <!-- Leaderboard -->
     <section id="leaderboard" class="page">
       <h2>Points Table</h2>
       <table>
@@ -70,11 +71,13 @@
       </table>
     </section>
 
+    <!-- Profiles -->
     <section id="profiles" class="page">
       <h2>Player Profile</h2>
       <div id="profileArea"></div>
     </section>
 
+    <!-- Admin Panel -->
     <section id="admin" class="page">
       <h2>Developer Panel</h2>
       <input type="password" id="adminPassword" placeholder="Password">
@@ -89,15 +92,15 @@
         <button onclick="addMatch()">Add Match</button>
 
         <h3>Delete Match</h3>
-        <input id="deleteMatchNumber">
+        <input id="deleteMatchNumber" placeholder="Match Number">
         <button onclick="deleteMatch()">Delete Match</button>
 
         <h3>Add Player</h3>
-        <input id="newPlayer">
+        <input id="newPlayer" placeholder="Player Name">
         <button onclick="addPlayer()">Add Player</button>
 
         <h3>Delete Player</h3>
-        <input id="deletePlayerName">
+        <input id="deletePlayerName" placeholder="Player Name">
         <button onclick="deletePlayer()">Delete Player</button>
 
         <h3>Enter Result</h3>
@@ -108,11 +111,10 @@
         <button onclick="clearData()">Clear All Data</button>
       </div>
     </section>
-
   </main>
 
-  <script src="script.js"></script>
+  <!-- Scripts -->
   <script src="storage.js"></script>
-
+  <script src="script.js"></script>
 </body>
 </html>
