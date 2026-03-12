@@ -1,4 +1,21 @@
 // ==========================
+// Firebase Configuration
+// ==========================
+const firebaseConfig = {
+    apiKey: "AIzaSyCSxv0be8qF1KaG4c7Fz9zyPKSmQaK3t04",
+    authDomain: "ipl-tukka-2.firebaseapp.com",
+    databaseURL: "https://ipl-tukka-2-default-rtdb.firebaseio.com",
+    projectId: "ipl-tukka-2",
+    storageBucket: "ipl-tukka-2.appspot.com",
+    messagingSenderId: "157643345361",
+    appId: "1:157643345361:web:fab5c045a29aa16fb3a4f0"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ==========================
 // DOM References
 // ==========================
 const matchSelect = document.getElementById("matchSelect");
@@ -39,11 +56,31 @@ function adminLogin() {
 }
 
 // ==========================
+// Firebase Utilities
+// ==========================
+function saveData(path, data) {
+    return db.ref(path).set(data);
+}
+
+function loadData(path, callback) {
+    db.ref(path).once("value").then(snap => callback(snap.val() || {}));
+}
+
+function listenData(path, callback) {
+    db.ref(path).on("value", snap => callback(snap.val() || {}));
+}
+
+function removeData(path) {
+    return db.ref(path).remove();
+}
+
+// ==========================
 // Players Functions
 // ==========================
 function updatePlayers() {
     playerSelect.innerHTML = "";
     listenData("players", players => {
+        playerSelect.innerHTML = "";
         for (let p in players) {
             const o = document.createElement("option");
             o.value = p;
@@ -75,6 +112,7 @@ updatePlayers();
 function updateMatches() {
     matchSelect.innerHTML = "";
     listenData("matches", matches => {
+        matchSelect.innerHTML = "";
         for (let key in matches) {
             const m = matches[key];
             const o = document.createElement("option");
@@ -82,6 +120,7 @@ function updateMatches() {
             o.text = `Match ${key}: ${m.t1} vs ${m.t2}`;
             matchSelect.add(o);
         }
+        updateTeamPredictionOptions();
         showTukkas();
     });
 }
@@ -112,15 +151,13 @@ function deleteMatch() {
 updateMatches();
 
 // ==========================
-// Team Dropdown Options
+// Update Team Dropdown based on Match
 // ==========================
 function updateTeamPredictionOptions() {
-    const matchId = matchSelect.value;
-    const match = document.getElementById("matchSelect");
-    const selected = match.options[match.selectedIndex];
-    if (!matchId || !selected) return;
+    const selectedOption = matchSelect.options[matchSelect.selectedIndex];
+    if (!selectedOption) return;
 
-    const text = selected.text;
+    const text = selectedOption.text;
     const teams = text.split(": ")[1]?.split(" vs ");
     teamPrediction.innerHTML = "";
     if (!teams) return;
@@ -133,10 +170,9 @@ function updateTeamPredictionOptions() {
     });
 }
 
-// Update team options whenever match changes
 matchSelect.addEventListener("change", () => {
-    showTukkas();
     updateTeamPredictionOptions();
+    showTukkas();
 });
 
 // ==========================
@@ -222,7 +258,6 @@ function enterResult() {
             const teamPoints = p.team === winning ? 10 : 0;
             const scorePoints = p.tukka.includes(score) ? 10 : 0;
 
-            // Update seasonPoints atomically
             loadData(`seasonPoints/${player}`, existing => {
                 saveData(`seasonPoints/${player}`, {
                     teamPoints: (existing.teamPoints || 0) + teamPoints,
