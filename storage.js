@@ -1,4 +1,4 @@
-function saveData(key,data){localStorage.setItem(key,JSON.stringify(data))}function loadData(key){let d=localStorage.getItem(key);return d?JSON.parse(d):[]}
+
 // ==========================
 // Firebase Storage Utilities
 // ==========================
