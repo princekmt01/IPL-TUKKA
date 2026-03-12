@@ -1,22 +1,22 @@
-
 // ==========================
-// Firebase Initialization
+// Firebase Configuration
 // ==========================
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "yourproject.firebaseapp.com",
-    databaseURL: "https://yourproject-default-rtdb.firebaseio.com",
-    projectId: "yourproject",
-    storageBucket: "yourproject.appspot.com",
-    messagingSenderId: "1234567890",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyCSxv0be8qF1KaG4c7Fz9zyPKSmQaK3t04",
+    authDomain: "ipl-tukka-2.firebaseapp.com",
+    databaseURL: "https://ipl-tukka-2-default-rtdb.firebaseio.com",
+    projectId: "ipl-tukka-2",
+    storageBucket: "ipl-tukka-2.appspot.com",
+    messagingSenderId: "157643345361",
+    appId: "1:157643345361:web:fab5c045a29aa16fb3a4f0"
 };
 
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 // ==========================
-// Global References
+// DOM References
 // ==========================
 const matchSelect = document.getElementById("matchSelect");
 const playerSelect = document.getElementById("playerSelect");
@@ -27,7 +27,9 @@ const pointsTable = document.getElementById("pointsTable");
 const adminPanel = document.getElementById("adminPanel");
 const adminPassword = document.getElementById("adminPassword");
 
-// Fill number select 1-400
+// ==========================
+// Fill number dropdown 1-400
+// ==========================
 for(let i=1;i<=400;i++){
     let opt = document.createElement("option");
     opt.text = i;
@@ -41,29 +43,27 @@ function showPage(id){
     document.querySelectorAll(".page").forEach(p=>p.style.display="none");
     document.getElementById(id).style.display="block";
 }
-
 showPage("matches");
 
 // ==========================
 // Admin Login
 // ==========================
 function adminLogin(){
-    if(adminPassword.value==="prince@ipltukka"){
-        adminPanel.style.display="block";
-    } else {
-        alert("Incorrect Password!");
-    }
+    if(adminPassword.value === "prince@ipltukka"){
+        adminPanel.style.display = "block";
+    } else alert("Incorrect Password!");
 }
 
 // ==========================
-// Players
+// Players Functions
 // ==========================
 function updatePlayers(){
     playerSelect.innerHTML = "";
     db.ref("players").on("value", snapshot => {
-        let players = snapshot.val() || {};
+        const players = snapshot.val() || {};
         for(let p in players){
             let o = document.createElement("option");
+            o.value = p;
             o.text = p;
             playerSelect.add(o);
         }
@@ -71,104 +71,131 @@ function updatePlayers(){
 }
 
 function addPlayer(){
-    if(newPlayer.value.trim()==="") return;
-    db.ref("players/" + newPlayer.value).set(true);
-    newPlayer.value = "";
+    const name = document.getElementById("newPlayer").value.trim();
+    if(!name) return;
+    db.ref("players/" + name).set(true);
+    document.getElementById("newPlayer").value = "";
 }
 
 function deletePlayer(){
-    db.ref("players/" + deletePlayerName.value).remove();
-    deletePlayerName.value = "";
+    const name = document.getElementById("deletePlayerName").value.trim();
+    if(!name) return;
+    db.ref("players/" + name).remove();
+    document.getElementById("deletePlayerName").value = "";
 }
 
 updatePlayers();
-
 // ==========================
-// Matches
+// Matches Functions
 // ==========================
 function updateMatches(){
     matchSelect.innerHTML = "";
     db.ref("matches").on("value", snapshot => {
-        let matches = snapshot.val() || {};
+        const matches = snapshot.val() || {};
         for(let key in matches){
-            let m = matches[key];
-            let o = document.createElement("option");
+            const m = matches[key];
+            const o = document.createElement("option");
             o.value = key;
-            o.text = "Match " + key + " " + m.t1 + " vs " + m.t2;
+            o.text = `Match ${key} ${m.t1} vs ${m.t2}`;
             matchSelect.add(o);
         }
-        showTukkas(); // refresh predictions
+        showTukkas(); // refresh predictions when matches update
     });
 }
 
 function addMatch(){
-    if(matchNumber.value.trim()==="" || team1.value.trim()==="" || team2.value.trim()==="") return;
-    let m = {
-        t1: team1.value,
-        t2: team2.value,
-        deadline: deadline.value
-    };
-    db.ref("matches/" + matchNumber.value).set(m);
-    matchNumber.value = team1.value = team2.value = "";
+    const num = document.getElementById("matchNumber").value.trim();
+    const t1 = document.getElementById("team1").value.trim();
+    const t2 = document.getElementById("team2").value.trim();
+    const deadline = document.getElementById("deadline").value;
+
+    if(!num || !t1 || !t2) return;
+
+    db.ref("matches/" + num).set({ t1, t2, deadline });
+
+    document.getElementById("matchNumber").value = "";
+    document.getElementById("team1").value = "";
+    document.getElementById("team2").value = "";
+    document.getElementById("deadline").value = "";
 }
 
 function deleteMatch(){
-    db.ref("matches/" + deleteMatchNumber.value).remove();
-    deleteMatchNumber.value = "";
+    const num = document.getElementById("deleteMatchNumber").value.trim();
+    if(!num) return;
+    db.ref("matches/" + num).remove();
+    document.getElementById("deleteMatchNumber").value = "";
 }
 
 updateMatches();
 
 // ==========================
-// Predictions
+// Predictions Functions
 // ==========================
 function submitPrediction(){
-    let num = parseInt(numberSelect.value);
-    let tukka = [num, num+1, num+2, num+3, num+4, num+5];
-    if(playerSelect.value==="" || teamPrediction.value==="") return;
+    const player = playerSelect.value;
+    const matchId = matchSelect.value;
+    const team = teamPrediction.value;
+    const num = parseInt(numberSelect.value);
 
-    let p = {
-        team: teamPrediction.value,
-        tukka: tukka
-    };
+    if(!player || !team || !num || !matchId) return;
 
-    db.ref(`predictions/${matchSelect.value}/${playerSelect.value}`).set(p);
+    const tukka = [num, num+1, num+2, num+3, num+4, num+5];
+    db.ref(`predictions/${matchId}/${player}`).set({ team, tukka });
+    showTukkas();
 }
 
 // Show predictions real-time
 function showTukkas(){
-    tukkaDisplay.innerHTML = "";
-    let matchId = matchSelect.value;
+    const matchId = matchSelect.value;
     if(!matchId) return;
 
+    tukkaDisplay.innerHTML = "";
+
     db.ref(`predictions/${matchId}`).on("value", snapshot => {
+        const data = snapshot.val() || {};
         tukkaDisplay.innerHTML = "";
-        let data = snapshot.val() || {};
         for(let player in data){
-            let p = data[player];
-            let line = document.createElement("p");
-            line.innerHTML = p.team + " - " + player + "'s tukka - " + p.tukka.join(",");
+            const p = data[player];
+            const line = document.createElement("p");
+            line.innerHTML = `${p.team} - ${player}'s tukka - ${p.tukka.join(",")}`;
             tukkaDisplay.append(line);
         }
     });
 }
 
 // ==========================
-// Leaderboard
+// Event Listener
+// ==========================
+matchSelect.addEventListener("change", showTukkas);
+// ==========================
+// Leaderboard Functions
 // ==========================
 function updateLeaderboard(){
     pointsTable.innerHTML = "";
+
     db.ref("seasonPoints").on("value", snapshot => {
-        let points = snapshot.val() || {};
-        let arr = [];
+        const points = snapshot.val() || {};
+        const arr = [];
+
         for(let player in points){
-            let p = points[player];
-            arr.push({name:player, total:(p.teamPoints||0)+(p.scorePoints||0), ...p});
+            const p = points[player];
+            arr.push({
+                name: player,
+                total: (p.teamPoints||0) + (p.scorePoints||0),
+                teamPoints: p.teamPoints||0,
+                scorePoints: p.scorePoints||0
+            });
         }
+
         arr.sort((a,b)=>b.total - a.total);
+
         arr.forEach((p,i)=>{
-            let tr = document.createElement("tr");
-            tr.innerHTML = `<td>${i+1}</td><td>${p.name}</td><td>${p.teamPoints||0}</td><td>${p.scorePoints||0}</td><td>${p.total}</td>`;
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${i+1}</td>
+                            <td>${p.name}</td>
+                            <td>${p.teamPoints}</td>
+                            <td>${p.scorePoints}</td>
+                            <td>${p.total}</td>`;
             pointsTable.append(tr);
         });
     });
@@ -180,26 +207,21 @@ updateLeaderboard();
 // Admin: Enter Result
 // ==========================
 function enterResult(){
-    let winning = winningTeam.value;
-    let score = parseInt(winningScore.value);
+    const winning = document.getElementById("winningTeam").value.trim();
+    const score = parseInt(document.getElementById("winningScore").value);
+    const matchId = matchSelect.value;
 
-    if(!winning || isNaN(score)){
-        alert("Enter valid team and score");
-        return;
-    }
+    if(!winning || isNaN(score) || !matchId) return alert("Enter valid data");
 
-    let matchId = matchSelect.value;
-    if(!matchId) return;
-
-    db.ref(`predictions/${matchId}`).once("value", snapshot=>{
-        let data = snapshot.val() || {};
+    db.ref(`predictions/${matchId}`).once("value", snapshot => {
+        const data = snapshot.val() || {};
         for(let player in data){
-            let p = data[player];
-            let teamPoints = p.team === winning ? 10 : 0;
-            let scorePoints = p.tukka.includes(score) ? 10 : 0;
+            const p = data[player];
+            const teamPoints = p.team === winning ? 10 : 0;
+            const scorePoints = p.tukka.includes(score) ? 10 : 0;
 
-            db.ref(`seasonPoints/${player}`).once("value", snap=>{
-                let existing = snap.val() || {};
+            db.ref(`seasonPoints/${player}`).once("value", snap => {
+                const existing = snap.val() || {};
                 db.ref(`seasonPoints/${player}`).set({
                     teamPoints: (existing.teamPoints||0) + teamPoints,
                     scorePoints: (existing.scorePoints||0) + scorePoints
@@ -208,7 +230,8 @@ function enterResult(){
         }
     });
 
-    winningTeam.value = winningScore.value = "";
+    document.getElementById("winningTeam").value = "";
+    document.getElementById("winningScore").value = "";
 }
 
 // ==========================
@@ -222,6 +245,9 @@ function clearData(){
 }
 
 // ==========================
-// Event Listeners
+// Firebase Utilities (Optional)
 // ==========================
-matchSelect.addEventListener("change", showTukkas);
+function saveData(path, data){ db.ref(path).set(data); }
+function loadData(path, callback){ db.ref(path).once("value", snap=>callback(snap.val()||{})); }
+function listenData(path, callback){ db.ref(path).on("value", snap=>callback(snap.val()||{})); }
+function removeData(path){ db.ref(path).remove(); }
