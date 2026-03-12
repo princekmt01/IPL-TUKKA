@@ -2,13 +2,36 @@
 <html>
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPL TUKKA</title>
 
-<title>IPL TUKKA</title>
+  <!-- Your CSS -->
+  <link rel="stylesheet" href="style.css">
 
-<link rel="stylesheet" href="style.css">
+  <!-- Firebase App (core SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 
+  <!-- Firebase Realtime Database -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <!-- Initialize Firebase -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCSxv0be8qF1KaG4c7Fz9zyPKSmQaK3t04",
+      authDomain: "ipl-tukka-2.firebaseapp.com",
+      databaseURL: "https://ipl-tukka-2-default-rtdb.firebaseio.com",
+      projectId: "ipl-tukka-2",
+      storageBucket: "ipl-tukka-2.appspot.com",
+      messagingSenderId: "157643345361",
+      appId: "1:157643345361:web:fab5c045a29aa16fb3a4f0"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+  </script>
 </head>
-
 <body>
 
 <header>
